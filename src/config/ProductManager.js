@@ -19,32 +19,29 @@ export class ProductManager {
     saveProducts = async () => {
         await fs.promises.writeFile(this.RUTA, JSON.stringify(this.products));
     }
-    addProduct = (title, description, price, thumbnail, code, stock) => {
+    addProduct = (newProduct) => {
         //Validacion todos los campos completos
-        if (!title || !description || !price || !thumbnail || !code || !stock) {
+        if (!newProduct.title || !newProduct.description || !newProduct.price || !newProduct.code || !newProduct.stock) {
             return "Todos los campos son obligatorios";
         }
-        const producto = {
-            title,
-            description,
-            price,
-            thumbnail,
-            code,
-            stock,
-            id: crypto.randomBytes(10).toString('hex')
-        };
+        if(typeof newProduct.title !== "string" || typeof newProduct.description !== "string" || typeof newProduct.price !== "number" || typeof newProduct.thumbnail !== "string" || typeof newProduct.code !== "string" || typeof newProduct.stock !== "number"){
+            return "Tipo de dato incorrecto"
+        }
         // Validar que no se repita el id
-        const existingIndex = this.products.findIndex(product => product.id === producto.id);
+        const existingIndex = this.products.findIndex(product => product.id === newProduct.id);
 
         if (existingIndex === -1) {
-            this.products.push(producto);
+            newProduct.id = crypto.randomBytes(10).toString('hex')
+            newProduct.status = true
+            if(!newProduct.thumbnail)
+                newProduct.thumbnail = []
+            this.products.push(newProduct);
         }
         else {
-            this.products[existingIndex].stock += producto.stock
+            this.products[existingIndex].stock += newProduct.stock
         }
         this.saveProducts();
         return "Producto agregado exitosamente";
-
     }
     getProducts = async () => {
         try {
@@ -65,32 +62,37 @@ export class ProductManager {
             return "Producto no existente"
         }
     }
-    deleteProduct(productId) {
-        const index = this.products.findIndex(product => product.id === productId);
-        if (index !== -1) {
-            this.products.splice(index, 1);
-            this.saveProducts();
-            return "Producto eliminado exitosamente";
+    async deleteProduct(id) {
+        const prods = JSON.parse(await fs.promises.readFile(this.RUTA, 'utf-8'))
+        const existingIndex = prods.findIndex(producto => producto.id === id)
+        if (existingIndex != -1) {
+            const prodsFiltrados = prods.filter(prod => prod.id != id)
+            await fs.promises.writeFile(this.RUTA, JSON.stringify(prodsFiltrados))
+            return 'Producto eliminado correctamente'
         } else {
-            return "Producto no encontrado";
+            return 'Producto no existe'
         }
+
     }
-    updateProduct = (productId, campoActualiza, valorActualiza) => {
-        const index = this.products.findIndex(product => product.id === productId);
-        if (index != -1) {
-            const productoActualizar = this.products[index];
-            if (campoActualiza in productoActualizar) {
-                productoActualizar[campoActualiza] = valorActualiza;
-                this.saveProducts();
-                return "Producto actualizado con exito";
+    async updateProduct(id, nuevoProducto) {
+        const prods = JSON.parse(await fs.promises.readFile(this.RUTA, "utf-8"));
+        const existingIndex = prods.findIndex(producto => producto.id === id)
+        if (existingIndex != -1) {
+            if(nuevoProducto.id != null){
+                return "No se puede actualizar el id del producto"
             }
-            else {
-                return "El campo especificado no existe en el producto";
-            }
+            prods[existingIndex].title = nuevoProducto.title
+            prods[existingIndex].description = nuevoProducto.description
+            prods[existingIndex].price = nuevoProducto.price
+            prods[existingIndex].thumbnail = nuevoProducto.thumbnail
+            prods[existingIndex].code = nuevoProducto.code
+            prods[existingIndex].stock = nuevoProducto.stock
+            await fs.promises.writeFile(this.RUTA, JSON.stringify(prods))
+            return 'Producto actualizado correctamente'
+        } else {
+            return 'Producto no existe'
         }
-        else {
-            return "Producto no encontrado";
-        }
+
     }
 }
 

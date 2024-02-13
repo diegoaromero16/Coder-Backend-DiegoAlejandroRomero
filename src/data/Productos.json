@@ -88,5 +88,15 @@
         "code": "MAT003",
         "stock": 18,
         "id": "6f7g8h9i0a1b2c3d4e"
+    },
+    {
+        "title": "Set de mate premium con bombilla y termo de acero inoxidable",
+        "description": "Un conjunto completo para disfrutar del mate en su máxima expresión, incluye un mate de alta calidad, una bombilla de acero inoxidable y un termo térmico para mantener el agua caliente por horas.",
+        "price": 3000,
+        "thumbnail": "Sin imagen",
+        "code": "MAT002",
+        "stock": 25,
+        "id": "cd114f3725da81e30491",
+        "status": true
     }
 ]
