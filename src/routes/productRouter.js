@@ -10,13 +10,23 @@ productRouter.get('/', async (req, res) => {
         const prods = await productManager.getProducts()
         if (!limit) {
             // Si no se especifica ningún límite, se devuelven todos los productos
-            res.send(prods);
+            //res.send(prods);
+            res.render('templates/home',{
+                mostrarProductos: true,
+                productos: prods,
+                css: 'products.css'
+            })
         } else {
             const limitNum = parseInt(limit);
             if (!isNaN(limitNum)) {
                 if (limitNum > 0) {
                     const prodsLimit = prods.slice(0, limitNum);
-                    res.send(prodsLimit);
+                    // res.send(prodsLimit);
+                    res.render('templates/home',{
+                        mostrarProductos: true,
+                        productos: prodsLimit,
+                        css: 'products.css'
+                    })
                 }
                 else {
                     // Si se especifica un límite inválido o menor o igual a 0, se devuelve un mensaje de error
@@ -28,7 +38,10 @@ productRouter.get('/', async (req, res) => {
         }
     }
     catch (error) {
-        res.status(500).send(`Error interno del servidor al consultar el cliente: ${error}`)
+        res.status(500).render('templates/error',{
+            error: error,
+        })
+        //res.status(500).send(`Error interno del servidor al consultar el cliente: ${error}`)
     }
 })
 productRouter.get('/:pid', async (req, res) => {
